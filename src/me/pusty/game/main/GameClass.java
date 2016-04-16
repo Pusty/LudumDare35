@@ -202,15 +202,15 @@ public class GameClass extends AbstractGameClass {
 
 		
 		
-		String fileNames[] = {};
+		String fileNames[] = {"resources/bg.wav"};
 		for(String fileName:fileNames) {			
 			FileHandle fileHandle = Gdx.files.internal(fileName);
-			getSound().addSound(fileHandle.nameWithoutExtension(),fileHandle,false);
+			getSound().addSound(fileHandle.nameWithoutExtension(),fileHandle,fileHandle.nameWithoutExtension().contains("bg"));
 		}
 //		getSound().addSound("select", StartClass.getURL("resources/select.wav"),false);
 //		getSound().addSound("bg_1",  StartClass.getURL("resources/bg_1.wav"),true);
 
-	
+		getSound().playClip("bg", null, null);
 		
 	}
 
