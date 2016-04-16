@@ -2,6 +2,7 @@ package game.engine.world;
 
 
 import me.pusty.game.main.GameClass;
+import me.pusty.util.BlockLocation;
 import game.engine.entity.Entity;
 import game.engine.entity.Player;
 
@@ -59,8 +60,15 @@ public class World {
 	}
 	
 	public int getBlockID(int x, int y) {
-		int wx = x/16;
+		int playerCX = ((mainclass.getWorld().getPlayer().getLocation().toBlock().getX()/16)-1);		
+		
+		int wx = x/16 - playerCX;
 		int wy = y/16;
+
+		x = x - playerCX*16;
+
+//		if(x>=sizex){x=x-wx*16;wx=0;}
+//		if(x<0){x=(x-wx*16)+sizex-16;; wx=sizex/16;}
 		if(wx*sizey/16+wy>=sizex/16*sizey/16)return 0;
 		if(x<0 || y<0)return 0;
 		return chunkarray[((wx*(sizey/16))+wy)].getBlockID(x-(16*wx),  y-(16*wy));

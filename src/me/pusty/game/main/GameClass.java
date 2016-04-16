@@ -125,6 +125,35 @@ public class GameClass extends AbstractGameClass {
 						getImageHandler().addImage(name, new TextureRegion(texture));
 			}
 			
+			{
+			fileHandle = Gdx.files.internal("resources/fox_moving.png");
+			String name = fileHandle.nameWithoutExtension();
+			Texture texture = new Texture(fileHandle);
+				int splitterX = texture.getWidth()/32;
+				TextureRegion[][]  tmp = TextureRegion.split(texture, texture.getWidth()/splitterX, texture.getHeight());
+		        int index = 0;
+		        for (int i = 0; i < tmp.length; i++) {
+		            for (int j = 0; j < tmp[i].length; j++) {
+		            	getImageHandler().addImage(name+"_"+index, tmp[i][j]);
+		                index++;
+		            }
+		        }   
+			}
+			{
+			fileHandle = Gdx.files.internal("resources/player_moving.png");
+			String name = fileHandle.nameWithoutExtension();
+			Texture texture = new Texture(fileHandle);
+				int splitterX = texture.getWidth()/32;
+				TextureRegion[][]  tmp = TextureRegion.split(texture, texture.getWidth()/splitterX, texture.getHeight());
+		        int index = 0;
+		        for (int i = 0; i < tmp.length; i++) {
+		            for (int j = 0; j < tmp[i].length; j++) {
+		            	getImageHandler().addImage(name+"_"+index, tmp[i][j]);
+		                index++;
+		            }
+		        }   
+			}
+			
 //			{
 //				fileHandle = Gdx.files.internal("resources/entities/player.png");
 //				String name = fileHandle.nameWithoutExtension();
@@ -238,12 +267,22 @@ public class GameClass extends AbstractGameClass {
 	
 	@Override
 	public void Init() {
-		World world = new World(this,16,16);
-		world.setPlayer(new Player(5*Config.tileSize,5*Config.tileSize));
-		for(int x=0;x<10;x++)   {
+		World world = new World(this,16*3,16);
+		world.setPlayer(new Player((5+16)*Config.tileSize,5*Config.tileSize));
+		for(int x=0;x<16;x++)   {
 			world.setBlockID(x, 1, 1);
 			world.setBlockID(x, 2, 0);
 			world.setBlockID(x, 0, 1);
+		}
+		for(int x=0;x<16;x++)   {
+			world.setBlockID(x+16, 2, 1);
+			world.setBlockID(x+16, 3, 0);
+			world.setBlockID(x+16, 1, 1);
+		}
+		for(int x=0;x<16;x++)   {
+			world.setBlockID(x+32, 1, 1);
+			world.setBlockID(x+32, 2, x%2==0?0:1);
+			world.setBlockID(x+32, 0, 1);
 		}
 		
 		setWorld(world);
@@ -267,7 +306,7 @@ public class GameClass extends AbstractGameClass {
 			//Camera Movement
 		}else if(point==0 || point==-1) {
 			PixelLocation location = this.getWorld().getPlayer().getLocation().clone();
-
+			/*
 			if(location.x <= 32)
 				location.setX(32);
 			if(location.y <= 32)
@@ -276,7 +315,7 @@ public class GameClass extends AbstractGameClass {
 				location.setX(getWorld().getSizeX()*Config.tileSize-32-8);
 			if(location.y >= getWorld().getSizeY()*Config.tileSize-32-8)
 				location.setY(getWorld().getSizeY()*Config.tileSize-32-8);
-			
+			*/
 			goal = location.add(new PixelLocation(-26,-26));
 		}
 		

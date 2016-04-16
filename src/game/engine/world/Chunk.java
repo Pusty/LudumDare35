@@ -53,6 +53,19 @@ public class Chunk {
 				emptyWorld=false;
 			idarray[y * sizex + x]=id;
 		}
+		public Chunk copy() {
+			Chunk newChunk = new Chunk(chunkx,chunky,sizex,sizey);
+			for(int x=0;x<sizex;x++)
+				for(int y=0;y<sizey;y++)
+					newChunk.setBlockID(x,y,this.getBlockID(x,y));
+			return newChunk;
+		}
+		
+		public void fill(Chunk replace) {
+			for(int x=0;x<sizex;x++)
+				for(int y=0;y<sizey;y++)
+					this.setBlockID(x,y,replace.getBlockID(x,y));
+		}
 		
 	
 }

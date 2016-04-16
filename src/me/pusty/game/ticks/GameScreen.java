@@ -75,10 +75,28 @@ public class GameScreen extends Tick{
 		Player player = world.getPlayer();
 		
 		
+
+		
+		
+		
+		int playerCXOld = (game.getWorld().getPlayer().getLocation().toBlock().getX()/16)-1;
+		
+		
+		
 		
 		game.cameraTick();
 
 		player.tickTraveled(e);
+		
+		int playerCXNew = (game.getWorld().getPlayer().getLocation().toBlock().getX()/16)-1;
+		
+		if(playerCXOld!=playerCXNew) {
+			Chunk place = world.getChunkArray()[0].copy();
+			world.getChunkArray()[0].fill(world.getChunkArray()[1]);
+			world.getChunkArray()[1].fill(world.getChunkArray()[2]);
+			world.getChunkArray()[2].fill(place);
+		}
+		
 			
 			for(int entityIndex=0;entityIndex<world.getEntityArray().length;entityIndex++) {
 				Entity entity = world.getEntityArray()[entityIndex];
@@ -137,14 +155,23 @@ public class GameScreen extends Tick{
 		
 		
 
+		BlockLocation playerLocation = game.getWorld().getPlayer().getLocation().toBlock();
+		int playerCX = (playerLocation.getX()/16)-1;
 		
 		for(int chunkIndex=0;chunkIndex<game.getWorld().getChunkArray().length;chunkIndex++) {
 			Chunk c = game.getWorld().getChunkArray()[chunkIndex];
 			int blockID = 0;
 			BlockLocation blockLocation;
 			if(c.isEmptyWorld())continue;
-			if(PixelLocation.getDistance(new BlockLocation(c.getChunkX() * c.getSizeX()
-					+ 8, c.getChunkY() * c.getSizeY() + 8).toPixelLocation(),game.getCamLocation()) > 8*8*3)continue;
+			for (int by = 0; by < c.getSizeY(); by++) {
+				for (int bx = 0; bx < c.getSizeX(); bx++) {
+					blockID =  c.getBlockID(bx, by);
+					blockLocation = new BlockLocation((playerCX+c.getChunkX()) * c.getSizeX()
+							+ bx, c.getChunkY() * c.getSizeY() + by);
+						renderBlock(e,batch,blockLocation.getX(), blockLocation.getY(),blockID);
+				}
+			}
+			/*
 			for (int by = 0; by < c.getSizeY(); by++) {
 				for (int bx = 0; bx < c.getSizeX(); bx++) {
 					blockID =  c.getBlockID(bx, by);
@@ -153,6 +180,7 @@ public class GameScreen extends Tick{
 						renderBlock(e,batch,blockLocation.getX(), blockLocation.getY(),blockID);
 				}
 			}
+			*/
 		}
 		
 		for(int entityIndex=0;entityIndex<world.getEntityArray().length;entityIndex++) {

@@ -21,16 +21,29 @@ public class Player extends EntityLiving {
 	}
 	
 	public String getTextureName() {
-		if(this.getDirection()==0)
-		return "fox_sit";
-		if(this.getLastDirection()==1)
-			return "fox_right";
-		if(this.getLastDirection()==2)
-			return "fox_left";
-		return "player";
+		if(isFox)   {
+			if(this.getLastDirection()==0)
+				return "fox_sit";
+			if(this.getLastDirection()==1)
+				return "fox_right";
+			if(this.getLastDirection()==2)
+				return "fox_left";
+			return "fox_sit";
+		}else {
+			if(this.getLastDirection()==0)
+				return "player";
+			if(this.getLastDirection()==1)
+				return "player_right";
+			if(this.getLastDirection()==2)
+				return "player_left";
+			return "player_sit";
+		}
 	}
 	public String getMovingTexture() {
-		return null;
+		if(isFox)
+			return "fox_moving";
+		else
+			return "player_moving";
 	}
 	
 	@Override
@@ -46,6 +59,13 @@ public class Player extends EntityLiving {
 	
 	public boolean hasDirections() { return false; }
 
+	boolean isFox=true;
+	public BlockLocation[] getHitbox(PixelLocation l) {
+		if(isFox)
+			return GameScreen.getAxBHitBox(l, 2, 1);
+		else
+			return GameScreen.getAxBHitBox(l, 1, 2);
+	}
 
 	
 	public void tickTraveled(AbstractGameClass e) {
@@ -87,10 +107,8 @@ public class Player extends EntityLiving {
 	
 			PixelLocation newLoc = getLocation().addVelocity(velo);
 				if(newLoc.x != getX() || newLoc.y != getY()) {
-					BlockLocation[] blocks = GameScreen.getAxBHitBox(newLoc,1,2);
+					BlockLocation[] blocks = getHitbox(newLoc);
 					boolean collision = false;
-					if(newLoc.x < 0 || newLoc.x > world.getSizeX()*Config.tileSize-Config.tileSize) collision = true;
-					if(newLoc.y < 0 || newLoc.y > world.getSizeY()*Config.tileSize-Config.tileSize) collision = true;
 					if(!collision)
 					for(int b=0;b<blocks.length;b++)
 						if(GameScreen.collisonBlock(this,newLoc,blocks[b].getX(),blocks[b].getY(),world.getBlockID(blocks[b].getX(),blocks[b].getY()))) {
@@ -103,8 +121,7 @@ public class Player extends EntityLiving {
 						collision = false;
 						if(velo.getY() != 0f) {					
 							newLoc = getLocation().addVelocity(new Velocity(0f,velo.getY()));
-							BlockLocation[] blocksY = GameScreen.getAxBHitBox(newLoc,1,2);
-							if(newLoc.y < 0 || newLoc.y > world.getSizeY()*Config.tileSize-Config.tileSize) collision = true;
+							BlockLocation[] blocksY = getHitbox(newLoc);
 							if(!collision)
 							for(int b=0;b<blocksY.length;b++)
 								if(GameScreen.collisonBlock(this,newLoc,blocksY[b].getX(),blocksY[b].getY(),world.getBlockID(blocksY[b].getX(),blocksY[b].getY()))) {
@@ -124,9 +141,8 @@ public class Player extends EntityLiving {
 						}
 						if((collision || velo.getY() == 0f) && velo.getX() != 0f) {
 							newLoc = getLocation().addVelocity(new Velocity(velo.getX(),0f));
-							BlockLocation[] blocksX = GameScreen.getAxBHitBox(newLoc,1,2);
+							BlockLocation[] blocksX = getHitbox(newLoc);
 							collision = false;
-							if(newLoc.x < 0 || newLoc.x > world.getSizeX()*Config.tileSize-Config.tileSize) collision = true;
 							if(!collision)
 							for(int b=0;b<blocksX.length;b++)
 								if(GameScreen.collisonBlock(this,newLoc,blocksX[b].getX(),blocksX[b].getY(),world.getBlockID(blocksX[b].getX(),blocksX[b].getY()))) {

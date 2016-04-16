@@ -82,11 +82,16 @@ public class EntityLiving extends Entity {
 		if(getDirection() == 0 || getMovingTexture() == null) {
 //				return getTextureName()+"_"+(this.getLastDirection()-1);
 		}else if(getDirection() != 0) {
-//				return getMovingTexture()+"_"+((this.getDirection()-1)*4 + frame);
+				float percent = ((float)getSpeed()-runningTraveled)/getSpeed();
+				int frame = Math.min(3,(int)(percent*4))  ; // frame = process * framecount
+				return getMovingTexture()+"_"+frame;
 		}
 		return getTextureName();
 	}
-	
+	int runningTraveled=0;
+	public int getSpeed() {
+		return 15;
+	}
 
 	public void render(AbstractGameClass e,SpriteBatch g) {
 		try {
@@ -109,6 +114,13 @@ public class EntityLiving extends Entity {
 			{setAnimation(null);setDefault();}
 		}else if(img!=null)
 			setDefault();
+		
+		if(engine.isTimeRunning())
+		runningTraveled++;
+		if(runningTraveled>getSpeed())
+			runningTraveled=0;
+		if(getDirection()==0)
+			runningTraveled=0;
 	}
 	
 	public Velocity getAddLocation(boolean tick) {

@@ -1,11 +1,11 @@
 [
     {
-        "name": "test",
+        "name": "fox_moving",
         "textures": [
-			"test0",
-			"test1",
-			"test2",
-			"test3"
+			"fox_moving_0",
+			"fox_moving_1",
+			"fox_moving_2",
+			"fox_moving_3"
 		],
         "times": [
 			5,
