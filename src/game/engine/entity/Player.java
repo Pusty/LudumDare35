@@ -46,10 +46,44 @@ public class Player extends EntityLiving {
 			return "player_moving";
 	}
 	
+	int adding=0;
+	public Velocity getAddLocation(boolean tick) {
+		
+		Velocity location = new Velocity(0,0);
+		if(direction==1)
+			if(isFox && isJumping)
+				location.add(new Velocity(3,0));
+			else
+				location.add(new Velocity(2,0));
+		else if(direction==2)
+			if(isFox && isJumping)
+				location.add(new Velocity(-3,0));
+			else
+				location.add(new Velocity(-2,0));
+		
+		if(isJumping) {
+			if(isFox) {
+					location.add(new Velocity(0, (int)Math.ceil((float)traveled/10)));
+			}else
+				location.add(new Velocity(0, (int)Math.ceil((float)traveled/10)));
+		}
+		
+		adding++;
+		if(adding>5)
+			adding=0;
+		
+			
+		return location;
+	}
+	
+	
 	@Override
 	public void jump(AbstractGameClass e) {
 		if(onGround && !isJumping) {
-			traveled = 20;
+			if(isFox)
+				traveled = 20;
+			else
+				traveled = 20;
 			isJumping=true;
 			onGround=false;
 			e.getSound().playClip("jump_player",((GameClass)e).getWorld().getPlayer().getLocation(),getLocation());
@@ -67,6 +101,10 @@ public class Player extends EntityLiving {
 			return GameScreen.getAxBHitBox(l, 1, 2);
 	}
 
+	boolean wantToChange=false;
+	public void wantToChange() {
+		wantToChange=true;
+	}
 	
 	public void tickTraveled(AbstractGameClass e) {
 		
@@ -81,15 +119,31 @@ public class Player extends EntityLiving {
 	
 		
 
-		
+		if(wantToChange && onGround) {
+			isFox=!isFox;
+			BlockLocation[] blocks = getHitbox(getLocation());
+			boolean collision = false;
+			for(int b=0;b<blocks.length;b++)
+				if(GameScreen.collisonBlock(this,getLocation(),blocks[b].getX(),blocks[b].getY(),world.getBlockID(blocks[b].getX(),blocks[b].getY()))) {
+					collision = true;
+					break;
+				}
+			isFox=!isFox;
+			
+			if(!collision) {
+				isFox = !isFox;
+				wantToChange=false;
+			}
+		}
 		
 		
 		
 		{
-			if(getDirection()!=0) {
-				if(!Gdx.input.isKeyPressed(Keys.A) && !Gdx.input.isKeyPressed(Keys.D))
-					setDirection(0);
-			}
+			setDirection(1);
+//			if(getDirection()!=0) {
+//				if(!Gdx.input.isKeyPressed(Keys.A) && !Gdx.input.isKeyPressed(Keys.D))
+//					setDirection(0);
+//			}
 			
 			Velocity velo = getVelocity();
 			if(velo==null) velo = new Velocity(0,0);
@@ -115,9 +169,10 @@ public class Player extends EntityLiving {
 							collision = true;
 							break;
 						}
-					if(!collision) 
+					if(!collision)  {
 							getLocation().set(newLoc);
-					else {
+							onGround=false;
+					}else {
 						collision = false;
 						if(velo.getY() != 0f) {					
 							newLoc = getLocation().addVelocity(new Velocity(0f,velo.getY()));
@@ -128,8 +183,10 @@ public class Player extends EntityLiving {
 									collision = true;
 									break;
 								}
-							if(!collision) 
-									getLocation().set(newLoc);
+							if(!collision)  {
+								getLocation().set(newLoc);
+								onGround = false;
+							}
 							else if(velo.getY()<0) {
 									setGround(true);
 							}
@@ -154,6 +211,7 @@ public class Player extends EntityLiving {
 						}
 						
 					}
+					
 				}
 
 		}

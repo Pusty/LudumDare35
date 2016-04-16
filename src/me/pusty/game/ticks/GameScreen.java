@@ -38,13 +38,9 @@ public class GameScreen extends Tick{
 	public boolean keyEvent(AbstractGameClass e,int type,int keycode) {
 		Player player = ((GameClass)e).getWorld().getPlayer();
 		switch(keycode) {
-		case Keys.D:
+		case Keys.Q:
 			if(type==0)
-				player.queueDirection(1);
-			return true;
-		case Keys.A:
-			if(type==0)
-				player.queueDirection(2);
+				player.wantToChange();
 			return true;
 		case Keys.SPACE:
 			if(type==0)
@@ -88,13 +84,29 @@ public class GameScreen extends Tick{
 
 		player.tickTraveled(e);
 		
+		if(game.getWorld().getPlayer().getLocation().getY() <= 0)  {
+			game.Init();
+			game.initStartScreen();
+		}
+		
 		int playerCXNew = (game.getWorld().getPlayer().getLocation().toBlock().getX()/16)-1;
 		
 		if(playerCXOld!=playerCXNew) {
-			Chunk place = world.getChunkArray()[0].copy();
+//			Chunk place = world.getChunkArray()[0].copy();
 			world.getChunkArray()[0].fill(world.getChunkArray()[1]);
 			world.getChunkArray()[1].fill(world.getChunkArray()[2]);
-			world.getChunkArray()[2].fill(place);
+			Chunk newChunk = new Chunk(2, 0, 16, 16);
+			for(int x=3;x<7;x++)  {
+				newChunk.setBlockID(x, 0, 1);
+				newChunk.setBlockID(x, 1, 1);
+				newChunk.setBlockID(x, 2, 0);
+			}
+			for(int x=9;x<13;x++)  {
+				newChunk.setBlockID(x, 0, 1);
+				newChunk.setBlockID(x, 1, 1);
+				newChunk.setBlockID(x, 2, 0);
+			}
+			world.getChunkArray()[2].fill(newChunk);
 		}
 		
 			
@@ -140,7 +152,14 @@ public class GameScreen extends Tick{
 	@Override
 	public void mouse(AbstractGameClass engine, int screenX, int screenY,
 			int pointer, int button) {
-		
+		engine.setTimeRunning(true);
+		GameClass game = (GameClass)engine;
+			if(PixelLocation.getDistance(new PixelLocation(screenX,screenY), new PixelLocation(28+16,28+16)) < 16) {
+				game.getWorld().getPlayer().wantToChange();
+			}else {
+				game.getWorld().getPlayer().jump(game);
+			}
+				
 	}
 
 	@Override

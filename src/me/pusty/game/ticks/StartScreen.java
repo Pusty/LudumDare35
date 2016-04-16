@@ -45,7 +45,8 @@ public class StartScreen extends Tick{
 	@Override
 	public void mouse(AbstractGameClass engine, int screenX, int screenY,
 			int pointer, int button) {
-		
+		engine.getSound().playClip("start",null,null);
+		((GameClass)engine).startGame();
 	}
 
 	@Override

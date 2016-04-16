@@ -269,21 +269,12 @@ public class GameClass extends AbstractGameClass {
 	public void Init() {
 		World world = new World(this,16*3,16);
 		world.setPlayer(new Player((5+16)*Config.tileSize,5*Config.tileSize));
-		for(int x=0;x<16;x++)   {
+		for(int x=0;x<16*3;x++)   {
 			world.setBlockID(x, 1, 1);
 			world.setBlockID(x, 2, 0);
 			world.setBlockID(x, 0, 1);
 		}
-		for(int x=0;x<16;x++)   {
-			world.setBlockID(x+16, 2, 1);
-			world.setBlockID(x+16, 3, 0);
-			world.setBlockID(x+16, 1, 1);
-		}
-		for(int x=0;x<16;x++)   {
-			world.setBlockID(x+32, 1, 1);
-			world.setBlockID(x+32, 2, x%2==0?0:1);
-			world.setBlockID(x+32, 0, 1);
-		}
+		
 		
 		setWorld(world);
 	}
