@@ -73,14 +73,17 @@ public class EntityLiving extends Entity {
 	public String getMovingTexture() {
 		return null;
 	}
+	public String getAirTexture() { return "empty"; }
 	
 	public boolean hasDirections() { return false; }
 	
 	public String getImage() {
 		if(img!=null)
 			return img;
-		if(getDirection() == 0 || getMovingTexture() == null) {
-//				return getTextureName()+"_"+(this.getLastDirection()-1);
+		if(isJumping) {
+			float percent = ((float)3-(runningTraveled/5))/3;
+			int frame = Math.min(1,(int)(percent*2))  ; // frame = process * framecount
+			return getAirTexture()+"_"+frame;
 		}else if(getDirection() != 0) {
 				float percent = ((float)getSpeed()-runningTraveled)/getSpeed();
 				int frame = Math.min(3,(int)(percent*4))  ; // frame = process * framecount
@@ -88,6 +91,7 @@ public class EntityLiving extends Entity {
 		}
 		return getTextureName();
 	}
+	
 	int runningTraveled=0;
 	public int getSpeed() {
 		return 15;

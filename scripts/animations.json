@@ -1,15 +1,23 @@
 [
     {
-        "name": "fox_moving",
+        "name": "fox_jump",
         "textures": [
 			"fox_moving_0",
-			"fox_moving_1",
-			"fox_moving_2",
-			"fox_moving_3"
+			"fox_moving_1"
 		],
         "times": [
 			5,
-			5,
+			5
+		]
+    },
+      {
+        "name": "player_jump",
+        "textures": [
+			"player_moving_0",
+			"player_moving_1",
+			"player_moving_2"
+		],
+        "times": [
 			5,
 			5
 		]

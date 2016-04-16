@@ -76,14 +76,24 @@ public class Player extends EntityLiving {
 		return location;
 	}
 	
+	public String getAirTexture() {
+	if(isFox)
+		return "fox_air"; 
+	else
+		return "player_air"; 
+		}
 	
 	@Override
 	public void jump(AbstractGameClass e) {
 		if(onGround && !isJumping) {
-			if(isFox)
+			if(isFox) {
+				traveled = 15;
+				setAnimation(e.getAnimationHandler().getAnimation("fox_jump"));
+			}
+			else {
 				traveled = 20;
-			else
-				traveled = 20;
+				setAnimation(e.getAnimationHandler().getAnimation("player_jump"));
+			}
 			isJumping=true;
 			onGround=false;
 			e.getSound().playClip("jump_player",((GameClass)e).getWorld().getPlayer().getLocation(),getLocation());
@@ -96,7 +106,7 @@ public class Player extends EntityLiving {
 	boolean isFox=true;
 	public BlockLocation[] getHitbox(PixelLocation l) {
 		if(isFox)
-			return GameScreen.getAxBHitBox(l, 2, 1);
+			return GameScreen.getAxBHitBox(l, 1, 1);
 		else
 			return GameScreen.getAxBHitBox(l, 1, 2);
 	}
@@ -104,6 +114,22 @@ public class Player extends EntityLiving {
 	boolean wantToChange=false;
 	public void wantToChange() {
 		wantToChange=true;
+	}
+	@Override
+	public String getImage() {
+		String prefix = wantToChange?"EV":"";
+		if(img!=null)
+			return img;
+		if(isJumping) {
+			float percent = ((float)3-(runningTraveled/5))/3;
+			int frame = Math.min(1,(int)(percent*2))  ; // frame = process * framecount
+			return getAirTexture()+prefix+"_"+frame;
+		}else if(getDirection() != 0) {
+				float percent = ((float)getSpeed()-runningTraveled)/getSpeed();
+				int frame = Math.min(3,(int)(percent*4))  ; // frame = process * framecount
+				return getMovingTexture()+prefix+"_"+frame;
+		}
+		return getTextureName();
 	}
 	
 	public void tickTraveled(AbstractGameClass e) {
@@ -136,6 +162,7 @@ public class Player extends EntityLiving {
 			}
 		}
 		
+
 		
 		
 		{
@@ -158,6 +185,7 @@ public class Player extends EntityLiving {
 			}
 			
 	
+			PixelLocation oldLoc = getLocation().clone();
 	
 			PixelLocation newLoc = getLocation().addVelocity(velo);
 				if(newLoc.x != getX() || newLoc.y != getY()) {
@@ -177,6 +205,7 @@ public class Player extends EntityLiving {
 						if(velo.getY() != 0f) {					
 							newLoc = getLocation().addVelocity(new Velocity(0f,velo.getY()));
 							BlockLocation[] blocksY = getHitbox(newLoc);
+							boolean sideCollision=false;
 							if(!collision)
 							for(int b=0;b<blocksY.length;b++)
 								if(GameScreen.collisonBlock(this,newLoc,blocksY[b].getX(),blocksY[b].getY(),world.getBlockID(blocksY[b].getX(),blocksY[b].getY()))) {
@@ -208,10 +237,16 @@ public class Player extends EntityLiving {
 								}
 							if(!collision) 
 									getLocation().set(newLoc);
+						
 						}
 						
 					}
 					
+				}
+				
+				if(getLocation().getY() <= 0 || (oldLoc.getX() == getLocation().getX() && oldLoc.getY() == getLocation().getY()))  {
+					game.Init();
+					game.initStartScreen();
 				}
 
 		}

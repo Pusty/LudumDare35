@@ -124,9 +124,9 @@ public class GameClass extends AbstractGameClass {
 				else
 						getImageHandler().addImage(name, new TextureRegion(texture));
 			}
-			
-			{
-			fileHandle = Gdx.files.internal("resources/fox_moving.png");
+			String fileNames2[] = {"resources/fox_moving.png","resources/player_moving.png","resources/player_air.png","resources/fox_air.png","resources/fox_movingEV.png","resources/player_movingEV.png","resources/player_airEV.png","resources/fox_airEV.png"};	
+			for(String fileName:fileNames2) {			
+			fileHandle = Gdx.files.internal(fileName);
 			String name = fileHandle.nameWithoutExtension();
 			Texture texture = new Texture(fileHandle);
 				int splitterX = texture.getWidth()/32;
@@ -139,21 +139,7 @@ public class GameClass extends AbstractGameClass {
 		            }
 		        }   
 			}
-			{
-			fileHandle = Gdx.files.internal("resources/player_moving.png");
-			String name = fileHandle.nameWithoutExtension();
-			Texture texture = new Texture(fileHandle);
-				int splitterX = texture.getWidth()/32;
-				TextureRegion[][]  tmp = TextureRegion.split(texture, texture.getWidth()/splitterX, texture.getHeight());
-		        int index = 0;
-		        for (int i = 0; i < tmp.length; i++) {
-		            for (int j = 0; j < tmp[i].length; j++) {
-		            	getImageHandler().addImage(name+"_"+index, tmp[i][j]);
-		                index++;
-		            }
-		        }   
-			}
-			
+
 //			{
 //				fileHandle = Gdx.files.internal("resources/entities/player.png");
 //				String name = fileHandle.nameWithoutExtension();

@@ -1,5 +1,7 @@
 package me.pusty.game.ticks;
 
+import java.util.Random;
+
 import game.engine.entity.Entity;
 import game.engine.entity.Player;
 import game.engine.main.Config;
@@ -9,6 +11,7 @@ import game.engine.world.World;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 
 
 
@@ -84,10 +87,7 @@ public class GameScreen extends Tick{
 
 		player.tickTraveled(e);
 		
-		if(game.getWorld().getPlayer().getLocation().getY() <= 0)  {
-			game.Init();
-			game.initStartScreen();
-		}
+
 		
 		int playerCXNew = (game.getWorld().getPlayer().getLocation().toBlock().getX()/16)-1;
 		
@@ -96,16 +96,45 @@ public class GameScreen extends Tick{
 			world.getChunkArray()[0].fill(world.getChunkArray()[1]);
 			world.getChunkArray()[1].fill(world.getChunkArray()[2]);
 			Chunk newChunk = new Chunk(2, 0, 16, 16);
-			for(int x=3;x<7;x++)  {
+			Random random = new Random();
+	
+			for(int x=0;x<16;x++) {
 				newChunk.setBlockID(x, 0, 1);
 				newChunk.setBlockID(x, 1, 1);
 				newChunk.setBlockID(x, 2, 0);
 			}
-			for(int x=9;x<13;x++)  {
-				newChunk.setBlockID(x, 0, 1);
-				newChunk.setBlockID(x, 1, 1);
-				newChunk.setBlockID(x, 2, 0);
+			
+			if(random.nextInt(2)==0) {
+				int randomX = random.nextInt(16);
+				newChunk.setBlockID(randomX, 0, 1);
+				newChunk.setBlockID(randomX, 1, 1);
+				newChunk.setBlockID(randomX, 2, 1);
+				newChunk.setBlockID(randomX, 3, 0);
 			}
+			
+			if(random.nextInt(2)==0) {
+				int randomX = random.nextInt(16);
+				newChunk.setBlockID(randomX, 0, 1);
+				newChunk.setBlockID(randomX, 1, 1);
+				newChunk.setBlockID(randomX, 2, 0);
+				newChunk.setBlockID(randomX, 3, 1);
+				newChunk.setBlockID(randomX, 4, 0);
+				newChunk.setBlockID(randomX, 5, -1);
+			}
+			
+			if(random.nextInt(2)==0) {
+				int randomX = random.nextInt(11)+3;
+				for(int ex=0;ex<random.nextInt(2)+1;ex++) {
+					newChunk.setBlockID(randomX+ex, 0, -1);
+					newChunk.setBlockID(randomX+ex, 1, -1);
+					newChunk.setBlockID(randomX+ex, 2, -1);
+					newChunk.setBlockID(randomX+ex, 3, -1);
+					newChunk.setBlockID(randomX+ex, 4, -1);
+					newChunk.setBlockID(randomX+ex, 5, -1);
+				}
+			}		
+			
+			
 			world.getChunkArray()[2].fill(newChunk);
 		}
 		
