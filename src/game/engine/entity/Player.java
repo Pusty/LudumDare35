@@ -1,8 +1,5 @@
 package game.engine.entity;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
-
 import game.engine.main.Config;
 import game.engine.world.World;
 import me.pusty.game.main.GameClass;
@@ -22,21 +19,9 @@ public class Player extends EntityLiving {
 	
 	public String getTextureName() {
 		if(isFox)   {
-			if(this.getLastDirection()==0)
-				return "fox_sit";
-			if(this.getLastDirection()==1)
-				return "fox_right";
-			if(this.getLastDirection()==2)
-				return "fox_left";
-			return "fox_sit";
+			return "fox_right";
 		}else {
-			if(this.getLastDirection()==0)
-				return "player";
-			if(this.getLastDirection()==1)
-				return "player_right";
-			if(this.getLastDirection()==2)
-				return "player_left";
-			return "player_sit";
+			return "player_right";
 		}
 	}
 	public String getMovingTexture() {
@@ -77,47 +62,16 @@ public class Player extends EntityLiving {
 	}
 	
 	public String getAirTexture() {
-	if(isFox)
-		return "fox_air"; 
-	else
-		return "player_air"; 
-		}
-	
-	@Override
-	public void jump(AbstractGameClass e) {
-		if(onGround && !isJumping) {
-			if(isFox) {
-				traveled = 15;
-				setAnimation(e.getAnimationHandler().getAnimation("fox_jump"));
-			}
-			else {
-				traveled = 20;
-				setAnimation(e.getAnimationHandler().getAnimation("player_jump"));
-			}
-			isJumping=true;
-			onGround=false;
-			e.getSound().playClip("jump_player",((GameClass)e).getWorld().getPlayer().getLocation(),getLocation());
-		}
-	}
-	
-	
-	public boolean hasDirections() { return false; }
-
-	boolean isFox=true;
-	public BlockLocation[] getHitbox(PixelLocation l) {
 		if(isFox)
-			return GameScreen.getAxBHitBox(l, 1, 1);
+			return "fox_air"; 
 		else
-			return GameScreen.getAxBHitBox(l, 1, 2);
+			return "player_air"; 
 	}
-
-	boolean wantToChange=false;
-	public void wantToChange() {
-		wantToChange=true;
-	}
+	
 	@Override
 	public String getImage() {
 		String prefix = wantToChange?"EV":"";
+		
 		if(img!=null)
 			return img;
 		if(isJumping) {
@@ -132,6 +86,45 @@ public class Player extends EntityLiving {
 		return getTextureName();
 	}
 	
+	@Override
+	public void jump(AbstractGameClass e) {
+		if(onGround && !isJumping) {
+			if(isFox) {
+				traveled = 15;
+				if(isAnimationNull())
+					setAnimation(e.getAnimationHandler().getAnimation("fox_jump"));
+			}
+			else {
+				traveled = 20;
+				if(isAnimationNull())
+					setAnimation(e.getAnimationHandler().getAnimation("player_jump"));
+			}
+			isJumping=true;
+			onGround=false;
+			e.getSound().playClip("jump");
+		}
+	}
+	
+	
+	public boolean hasDirections() { return false; }
+
+	boolean isFox=false;
+	public BlockLocation[] getHitbox(PixelLocation l) {
+		if(isFox)
+			return GameScreen.getAxBHitBox(l, 1, 1);
+		else
+			return GameScreen.getAxBHitBox(l, 1, 2);
+	}
+
+	boolean wantToChange=false;
+	public void wantToChange(AbstractGameClass a) {
+		wantToChange=true;
+	}
+	int changeTimer=-1;
+	public int getChangeTimer() {
+		return changeTimer;
+	}
+	
 	public void tickTraveled(AbstractGameClass e) {
 		
 		GameClass game = (GameClass)e;
@@ -143,22 +136,38 @@ public class Player extends EntityLiving {
 		
 		World world = game.getWorld();
 	
-		
+		if(changeTimer>0)
+			changeTimer--;
+		if(changeTimer==0) {
+			changeTimer--;
+			wantToChange(game);
+		}
 
 		if(wantToChange && onGround) {
 			isFox=!isFox;
+			
 			BlockLocation[] blocks = getHitbox(getLocation());
 			boolean collision = false;
 			for(int b=0;b<blocks.length;b++)
-				if(GameScreen.collisonBlock(this,getLocation(),blocks[b].getX(),blocks[b].getY(),world.getBlockID(blocks[b].getX(),blocks[b].getY()))) {
+				if(GameScreen.collisonBlock(game,this,getLocation(),blocks[b].getX(),blocks[b].getY(),world.getBlockID(blocks[b].getX(),blocks[b].getY()))) {
 					collision = true;
 					break;
 				}
 			isFox=!isFox;
 			
 			if(!collision) {
-				isFox = !isFox;
+				isFox = !isFox;				
+				if(isFox)
+					changeTimer=30;
+				else
+					changeTimer=-1;
+				e.getSound().playClip("change");
+				if(isFox)
+					setAnimation(game.getAnimationHandler().getAnimation("player_tran"));
+				else
+					setAnimation(game.getAnimationHandler().getAnimation("fox_tran"));
 				wantToChange=false;
+				
 			}
 		}
 		
@@ -167,10 +176,6 @@ public class Player extends EntityLiving {
 		
 		{
 			setDirection(1);
-//			if(getDirection()!=0) {
-//				if(!Gdx.input.isKeyPressed(Keys.A) && !Gdx.input.isKeyPressed(Keys.D))
-//					setDirection(0);
-//			}
 			
 			Velocity velo = getVelocity();
 			if(velo==null) velo = new Velocity(0,0);
@@ -193,7 +198,7 @@ public class Player extends EntityLiving {
 					boolean collision = false;
 					if(!collision)
 					for(int b=0;b<blocks.length;b++)
-						if(GameScreen.collisonBlock(this,newLoc,blocks[b].getX(),blocks[b].getY(),world.getBlockID(blocks[b].getX(),blocks[b].getY()))) {
+						if(GameScreen.collisonBlock(game,this,newLoc,blocks[b].getX(),blocks[b].getY(),world.getBlockID(blocks[b].getX(),blocks[b].getY()))) {
 							collision = true;
 							break;
 						}
@@ -205,10 +210,9 @@ public class Player extends EntityLiving {
 						if(velo.getY() != 0f) {					
 							newLoc = getLocation().addVelocity(new Velocity(0f,velo.getY()));
 							BlockLocation[] blocksY = getHitbox(newLoc);
-							boolean sideCollision=false;
 							if(!collision)
 							for(int b=0;b<blocksY.length;b++)
-								if(GameScreen.collisonBlock(this,newLoc,blocksY[b].getX(),blocksY[b].getY(),world.getBlockID(blocksY[b].getX(),blocksY[b].getY()))) {
+								if(GameScreen.collisonBlock(game,this,newLoc,blocksY[b].getX(),blocksY[b].getY(),world.getBlockID(blocksY[b].getX(),blocksY[b].getY()))) {
 									collision = true;
 									break;
 								}
@@ -217,7 +221,10 @@ public class Player extends EntityLiving {
 								onGround = false;
 							}
 							else if(velo.getY()<0) {
+									if(!onGround) {
 									setGround(true);
+									e.getSound().playClip("ground");
+									}
 							}
 							else if(velo.getY()>0) {
 								setJumping(false);
@@ -231,7 +238,7 @@ public class Player extends EntityLiving {
 							collision = false;
 							if(!collision)
 							for(int b=0;b<blocksX.length;b++)
-								if(GameScreen.collisonBlock(this,newLoc,blocksX[b].getX(),blocksX[b].getY(),world.getBlockID(blocksX[b].getX(),blocksX[b].getY()))) {
+								if(GameScreen.collisonBlock(game,this,newLoc,blocksX[b].getX(),blocksX[b].getY(),world.getBlockID(blocksX[b].getX(),blocksX[b].getY()))) {
 									collision = true;
 									break;
 								}
@@ -244,9 +251,11 @@ public class Player extends EntityLiving {
 					
 				}
 				
-				if(getLocation().getY() <= 0 || (oldLoc.getX() == getLocation().getX() && oldLoc.getY() == getLocation().getY()))  {
-					game.Init();
-					game.initStartScreen();
+				if(getLocation().getY() <= 0 || (oldLoc.getX() == getLocation().getX()))  {
+					game.setGameOver(true);
+					game.setTimeRunning(false);
+					e.getSound().playClip("death");
+					game.setTimeout(30);
 				}
 
 		}

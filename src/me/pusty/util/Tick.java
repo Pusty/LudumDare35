@@ -170,7 +170,7 @@ public abstract class Tick implements Screen, InputProcessor  {
 	public boolean mouseMoved(int screenX, int screenY) {
 		Ray ray = engine.getCamera().getPickRay(screenX, screenY);
 		Vector3 out = new Vector3();
-		ray.getEndPoint(out, engine.getCamera().near);
+		ray.getEndPoint(out, 1f);
 		genericMouse(E(),5,(int)out.x,(int)out.y,0,0);
 		return true;
 	}

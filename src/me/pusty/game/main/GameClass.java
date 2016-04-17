@@ -70,41 +70,10 @@ public class GameClass extends AbstractGameClass {
         this.setCamera(camera);
         
 		try{
-			
-			/*FileHandle fileHandle = Gdx.files.internal("resources/chars.png");
-			{
-				char[] smallletters = { ' ', 'A','B','C','D','E','F','G','H','I',
-						'J', 'K','L','M','N','O','P','Q','R','S',
-						'T', 'U','V','W','X','Y','Z','a','b','c',
-						'd', 'e','f','g','h','i','j','k','l','m',
-						'n', 'o','p','q','r','s','t','u','v','w',
-						'x', 'y','z','0','1','2','3','4','5','6',
-						'7', '8','9','!','"','%','&','/','(',')',
-						'=', '?','[',']','{','}','\\','|','<','>',
-						'*', '+','~',"'".toCharArray()[0],'#','-','_','.',':',',',
-						';'};
-
-
-
-						Texture tex = new Texture(fileHandle);
-						TextureRegion[][]  tmp = TextureRegion.split(tex, tex.getWidth()/10, tex.getHeight()/10);
-						int index = 0;
-						for (int i = 0; i < tmp.length; i++) {
-						    for (int j = 0; j < tmp[i].length; j++) {
-						    	getImageHandler().addImage("small_" + smallletters[index], tmp[i][j]);
-						    	getImageHandler().addImage("char_" + smallletters[index], tmp[i][j]);
-						        index++;
-						        if(index >= smallletters.length)
-						        	break;
-						    }
-						    if(index >= smallletters.length)
-						    	break;
-						}
-		        
-			}*/
 			FileHandle fileHandle = null;
 			
-			String fileNames[] = {"resources/empty.png","resources/player.png","resources/player_right.png","resources/player_left.png","resources/fox_sit.png","resources/fox_right.png","resources/fox_left.png","resources/tile_0.png","resources/tile_1.png"};
+			String fileNames[] = {"resources/empty.png","resources/player_right.png","resources/fox_right.png","resources/tiles.png"
+					,"resources/startScreen.png","resources/endScreen.png"};
 			for(String fileName:fileNames) {			
 				fileHandle = Gdx.files.internal(fileName);
 				String name = fileHandle.nameWithoutExtension();
@@ -124,7 +93,8 @@ public class GameClass extends AbstractGameClass {
 				else
 						getImageHandler().addImage(name, new TextureRegion(texture));
 			}
-			String fileNames2[] = {"resources/fox_moving.png","resources/player_moving.png","resources/player_air.png","resources/fox_air.png","resources/fox_movingEV.png","resources/player_movingEV.png","resources/player_airEV.png","resources/fox_airEV.png"};	
+			String fileNames2[] = {"resources/fox_moving.png","resources/player_moving.png","resources/player_air.png","resources/fox_air.png","resources/player_tran.png",
+					"resources/fox_movingEV.png","resources/player_movingEV.png","resources/player_airEV.png","resources/fox_airEV.png"};	
 			for(String fileName:fileNames2) {			
 			fileHandle = Gdx.files.internal(fileName);
 			String name = fileHandle.nameWithoutExtension();
@@ -140,39 +110,22 @@ public class GameClass extends AbstractGameClass {
 		        }   
 			}
 
-//			{
-//				fileHandle = Gdx.files.internal("resources/entities/player.png");
-//				String name = fileHandle.nameWithoutExtension();
-//				Texture texture = new Texture(fileHandle);
-//					int splitterX = texture.getWidth()/16;
-//					TextureRegion[][]  tmp = TextureRegion.split(texture, texture.getWidth()/splitterX, texture.getHeight());
-//			        int index = 0;
-//			        for (int i = 0; i < tmp.length; i++) {
-//			            for (int j = 0; j < tmp[i].length; j++) {
-//			            	getImageHandler().addImage(name+"_"+index, tmp[i][j]);
-//			                index++;
-//			            }
-//			        }
-//			       
-//			}
+			{
+				fileHandle = Gdx.files.internal("resources/background.png");
+				String name = fileHandle.nameWithoutExtension();
+				Texture texture = new Texture(fileHandle);
+					int splitterX = texture.getWidth()/256;
+					TextureRegion[][]  tmp = TextureRegion.split(texture, texture.getWidth()/splitterX, texture.getHeight());
+			        int index = 0;
+			        for (int i = 0; i < tmp.length; i++) {
+			            for (int j = 0; j < tmp[i].length; j++) {
+			            	getImageHandler().addImage(name+"_"+index, tmp[i][j]);
+			                index++;
+			            }
+			        }
+			       
+			}
 
-			
-//			{
-//				fileHandle = Gdx.files.internal("resources/title.png");
-//				String name = fileHandle.nameWithoutExtension();
-//				Texture texture = new Texture(fileHandle);
-//					int splitterX = texture.getWidth()/64;
-//					TextureRegion[][]  tmp = TextureRegion.split(texture, texture.getWidth()/splitterX, texture.getHeight());
-//			        int index = 0;
-//			        for (int i = 0; i < tmp.length; i++) {
-//			            for (int j = 0; j < tmp[i].length; j++) {
-//			            	getImageHandler().addImage(name+"_"+index, tmp[i][j]);
-//			                index++;
-//			            }
-//			        }
-//			       
-//			}
-			
 
 						
 				
@@ -202,7 +155,7 @@ public class GameClass extends AbstractGameClass {
 
 		
 		
-		String fileNames[] = {"resources/bg.wav"};
+		String fileNames[] = {"resources/bg.wav","resources/change.wav","resources/win.wav","resources/jump.wav","resources/ground.wav","resources/death.wav"};
 		for(String fileName:fileNames) {			
 			FileHandle fileHandle = Gdx.files.internal(fileName);
 			getSound().addSound(fileHandle.nameWithoutExtension(),fileHandle,fileHandle.nameWithoutExtension().contains("bg"));
@@ -210,8 +163,17 @@ public class GameClass extends AbstractGameClass {
 //		getSound().addSound("select", StartClass.getURL("resources/select.wav"),false);
 //		getSound().addSound("bg_1",  StartClass.getURL("resources/bg_1.wav"),true);
 
-		getSound().playClip("bg", null, null);
+		getSound().playClip("bg");
 		
+	}
+	
+	boolean gameOver = false;
+	
+	public boolean getGameOver() {
+		return gameOver;
+	}
+	public void setGameOver(boolean b) {
+		gameOver = b;
 	}
 
 
@@ -254,11 +216,11 @@ public class GameClass extends AbstractGameClass {
 	@Override
 	public void Init() {
 		World world = new World(this,16*3,16);
-		world.setPlayer(new Player((5+16)*Config.tileSize,5*Config.tileSize));
+		world.setPlayer(new Player((5+16)*Config.tileSize,2*Config.tileSize));
 		for(int x=0;x<16*3;x++)   {
-			world.setBlockID(x, 1, 1);
-			world.setBlockID(x, 2, 0);
-			world.setBlockID(x, 0, 1);
+			world.setBlockID(x, 1, 0);
+			world.setBlockID(x, 0, 0);
+			world.setBlockID(x, 2, 5);
 		}
 		
 		
@@ -315,14 +277,28 @@ public class GameClass extends AbstractGameClass {
 		}else if(timeOut == -2)
 			timeOut = -1;
 		
+		if(getGameOver() && timeOut== -2) {
+			Init();
+			initStartScreen(true);
+			setTimeRunning(true);
+			setGameOver(false);
+			setFinished(false);
+		}
+		if(getFinished() && timeOut == -2) {
+			Init();
+			initStartScreen(false);
+			setTimeRunning(true);
+			setGameOver(false);
+			setFinished(false);
+		}
+		
+		
 		if(getCameraPoint()==-1)return;
 		if(getCameraPoint()==0 && (cameraTick <= 0 && cameraTick > -50))
 			setTimeRunning(true);
 		else
 			setTimeRunning(false);
 		
-		if(cameraTick==0)
-			getSound().playClip("powerup",null,null);
 		
 		if(cameraTick == 0) {
 			//Event Here
@@ -364,8 +340,8 @@ public class GameClass extends AbstractGameClass {
 
 
 	@Override
-	public void initStartScreen() {
-		StartScreen screenTick = new StartScreen(this);
+	public void initStartScreen(boolean start) {
+		StartScreen screenTick = new StartScreen(this,start);
 		this.setScreen(screenTick);
 	    Gdx.input.setInputProcessor(screenTick);
 	}
@@ -374,6 +350,13 @@ public class GameClass extends AbstractGameClass {
 		GameScreen gameTick = new GameScreen(this);
 		this.setScreen(gameTick);
 	    Gdx.input.setInputProcessor(gameTick);
+	}
+	boolean finished=false;
+	public void setFinished(boolean b) {
+		finished = b;
+	}
+	public boolean getFinished() {
+		return finished;
 	}
 
 }

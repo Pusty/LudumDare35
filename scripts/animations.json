@@ -19,7 +19,38 @@
 		],
         "times": [
 			5,
+			5,
 			5
+		]
+    },
+      {
+        "name": "player_tran",
+        "textures": [
+			"player_tran_0",
+			"player_tran_1",
+			"player_tran_2",
+			"player_tran_3"
+		],
+        "times": [
+			2,
+			2,
+			2,
+			2
+		]
+    },
+      {
+        "name": "fox_tran",
+        "textures": [
+			"player_tran_3",
+			"player_tran_2",
+			"player_tran_1",
+			"player_tran_0"
+		],
+        "times": [
+			2,
+			2,
+			2,
+			2
 		]
     }
 ]

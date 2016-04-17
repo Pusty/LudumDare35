@@ -56,10 +56,10 @@ public abstract class AbstractGameClass extends Game {
 		Init();
 		postInit();
 		
-		initStartScreen();
+		initStartScreen(true);
 	}
 	
-	public abstract void initStartScreen();
+	public abstract void initStartScreen(boolean start);
 	
 	public HashMap<String,Integer> getVariable() { return variables; }
 	public RawAnimationHandler getAnimationHandler() {

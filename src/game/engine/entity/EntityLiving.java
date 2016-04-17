@@ -58,7 +58,7 @@ public class EntityLiving extends Entity {
 			traveled = 20;
 			isJumping=true;
 			onGround=false;
-			e.getSound().playClip("jump",((GameClass)e).getWorld().getPlayer().getLocation(),getLocation());
+			e.getSound().playClip("jump");
 		}
 	}
 	
@@ -102,8 +102,15 @@ public class EntityLiving extends Entity {
 			TextureRegion image = e.getImageHandler().getImage(getImage());
 			PixelLocation cam = ((GameClass)e).getCamLocation();
 			PixelLocation move = new PixelLocation(getX() - cam.getX(), getY() - cam.getY());
-			g.draw(image,move.getX(),move.getY());
-			
+			float offsetY = 0;
+			if(((GameClass)e).getGameOver()) {
+				image.flip(false, true);
+				if(this instanceof Player && ((Player)this).isFox)
+				offsetY = -16;
+			}
+			g.draw(image,move.getX(),move.getY()+offsetY);
+			if(((GameClass)e).getGameOver())
+				image.flip(false, true);		
 			
 		} catch(Exception ex) { System.err.println(getImage()); }
 	}

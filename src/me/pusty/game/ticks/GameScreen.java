@@ -1,28 +1,15 @@
 package me.pusty.game.ticks;
 
-import java.util.Random;
-
 import game.engine.entity.Entity;
 import game.engine.entity.Player;
 import game.engine.main.Config;
 import game.engine.world.Chunk;
+import game.engine.world.ChunkGenerator;
 import game.engine.world.World;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
-
-
-
-
-
-
-
-
-
-
-
 import me.pusty.game.main.GameClass;
 import me.pusty.util.AbstractGameClass;
 import me.pusty.util.BlockLocation;
@@ -43,7 +30,7 @@ public class GameScreen extends Tick{
 		switch(keycode) {
 		case Keys.Q:
 			if(type==0)
-				player.wantToChange();
+				player.wantToChange(e);
 			return true;
 		case Keys.SPACE:
 			if(type==0)
@@ -62,6 +49,8 @@ public class GameScreen extends Tick{
 		
 	}
 
+	ChunkGenerator chunkGenerator = null;
+	
 	@Override
 	public void tick(AbstractGameClass e, float delta) {
 		GameClass game = (GameClass)e;	
@@ -73,7 +62,8 @@ public class GameScreen extends Tick{
 		
 		Player player = world.getPlayer();
 		
-		
+		if(chunkGenerator==null)
+			chunkGenerator = new ChunkGenerator();
 
 		
 		
@@ -92,50 +82,10 @@ public class GameScreen extends Tick{
 		int playerCXNew = (game.getWorld().getPlayer().getLocation().toBlock().getX()/16)-1;
 		
 		if(playerCXOld!=playerCXNew) {
-//			Chunk place = world.getChunkArray()[0].copy();
 			world.getChunkArray()[0].fill(world.getChunkArray()[1]);
 			world.getChunkArray()[1].fill(world.getChunkArray()[2]);
-			Chunk newChunk = new Chunk(2, 0, 16, 16);
-			Random random = new Random();
-	
-			for(int x=0;x<16;x++) {
-				newChunk.setBlockID(x, 0, 1);
-				newChunk.setBlockID(x, 1, 1);
-				newChunk.setBlockID(x, 2, 0);
-			}
 			
-			if(random.nextInt(2)==0) {
-				int randomX = random.nextInt(16);
-				newChunk.setBlockID(randomX, 0, 1);
-				newChunk.setBlockID(randomX, 1, 1);
-				newChunk.setBlockID(randomX, 2, 1);
-				newChunk.setBlockID(randomX, 3, 0);
-			}
-			
-			if(random.nextInt(2)==0) {
-				int randomX = random.nextInt(16);
-				newChunk.setBlockID(randomX, 0, 1);
-				newChunk.setBlockID(randomX, 1, 1);
-				newChunk.setBlockID(randomX, 2, 0);
-				newChunk.setBlockID(randomX, 3, 1);
-				newChunk.setBlockID(randomX, 4, 0);
-				newChunk.setBlockID(randomX, 5, -1);
-			}
-			
-			if(random.nextInt(2)==0) {
-				int randomX = random.nextInt(11)+3;
-				for(int ex=0;ex<random.nextInt(2)+1;ex++) {
-					newChunk.setBlockID(randomX+ex, 0, -1);
-					newChunk.setBlockID(randomX+ex, 1, -1);
-					newChunk.setBlockID(randomX+ex, 2, -1);
-					newChunk.setBlockID(randomX+ex, 3, -1);
-					newChunk.setBlockID(randomX+ex, 4, -1);
-					newChunk.setBlockID(randomX+ex, 5, -1);
-				}
-			}		
-			
-			
-			world.getChunkArray()[2].fill(newChunk);
+			chunkGenerator.generate(world);
 		}
 		
 			
@@ -147,9 +97,17 @@ public class GameScreen extends Tick{
 		
 	}
 	
-	public static boolean collisonBlock(Entity entity,PixelLocation loc,int x,int y,int id) {
+	public static boolean collisonBlock(AbstractGameClass e,Entity entity,PixelLocation loc,int x,int y,int id) {
 		if(id==-1) return false;
-		if(id==0)return false;
+		if(id>=9) {
+			((GameClass)e).setFinished(true);
+			((GameClass)e).setTimeRunning(false);
+			((GameClass)e).setTimeout(30);
+			e.getSound().playClip("win");
+			return false;
+		}
+		if(id>2)
+			return false;
 		return true;
 	}
 	
@@ -181,10 +139,9 @@ public class GameScreen extends Tick{
 	@Override
 	public void mouse(AbstractGameClass engine, int screenX, int screenY,
 			int pointer, int button) {
-		engine.setTimeRunning(true);
 		GameClass game = (GameClass)engine;
 			if(PixelLocation.getDistance(new PixelLocation(screenX,screenY), new PixelLocation(28+16,28+16)) < 16) {
-				game.getWorld().getPlayer().wantToChange();
+				game.getWorld().getPlayer().wantToChange(engine);
 			}else {
 				game.getWorld().getPlayer().jump(game);
 			}
@@ -194,7 +151,8 @@ public class GameScreen extends Tick{
 	@Override
 	public void render(AbstractGameClass e, float delta) {
 		SpriteBatch batch  = e.getBatch();
-		batch.setColor(159f/255f,201f/255f,199f/255f,1f);
+//		batch.setColor(159f/255f,201f/255f,199f/255f,1f);
+		batch.setColor(179f/255f,191f/255f,168f/255f,1f);
 		batch.draw(e.getImageHandler().getImage("empty"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		batch.setColor(1,1,1,1);
 		
@@ -205,7 +163,11 @@ public class GameScreen extends Tick{
 
 		BlockLocation playerLocation = game.getWorld().getPlayer().getLocation().toBlock();
 		int playerCX = (playerLocation.getX()/16)-1;
-		
+		for(int chunkIndex=0;chunkIndex<game.getWorld().getChunkArray().length;chunkIndex++) {
+			Chunk c = game.getWorld().getChunkArray()[chunkIndex];			
+			batch.draw(e.getImageHandler().getImage("background_"+0), ((playerCX+c.getChunkX()) * c.getSizeX())*Config.tileSize - ((GameClass)e).getCamLocation().getX(), 
+					((c.getChunkY()) * c.getSizeY())*Config.tileSize - ((GameClass)e).getCamLocation().getY()); 
+		}
 		for(int chunkIndex=0;chunkIndex<game.getWorld().getChunkArray().length;chunkIndex++) {
 			Chunk c = game.getWorld().getChunkArray()[chunkIndex];
 			int blockID = 0;
@@ -219,41 +181,16 @@ public class GameScreen extends Tick{
 						renderBlock(e,batch,blockLocation.getX(), blockLocation.getY(),blockID);
 				}
 			}
-			/*
-			for (int by = 0; by < c.getSizeY(); by++) {
-				for (int bx = 0; bx < c.getSizeX(); bx++) {
-					blockID =  c.getBlockID(bx, by);
-					blockLocation = new BlockLocation(c.getChunkX() * c.getSizeX()
-							+ bx, c.getChunkY() * c.getSizeY() + by);
-						renderBlock(e,batch,blockLocation.getX(), blockLocation.getY(),blockID);
-				}
-			}
-			*/
 		}
 		
-		for(int entityIndex=0;entityIndex<world.getEntityArray().length;entityIndex++) {
-			Entity entity = world.getEntityArray()[entityIndex];
-			if(entity==null)continue;
-			entity.renderTick(e, entityIndex);
-			entity.render(e, batch);
-		}
 		world.getPlayer().renderTick(e, -1);
 		world.getPlayer().render(e, batch);
-
-	
 	}
 
-	private void renderBlock(AbstractGameClass e,SpriteBatch b,int x,int y,int id) {
+	public static void renderBlock(AbstractGameClass e,SpriteBatch b,int x,int y,int id) {
 		if(id<0) return;
 		PixelLocation cam = ((GameClass)e).getCamLocation();
 		PixelLocation move = new PixelLocation( x*Config.tileSize - cam.getX(), y*Config.tileSize - cam.getY());
-//		if(true) { //Animated block
-//			RawAnimation an = e.getAnimationHandler().getAnimation("tile_"+id);
-//			int frame = ((int)Math.floor(((float)(50-ticks)/50)*an.getFrameDelays().length));
-//			String textureName = an.getImage(frame);
-//			
-//			b.draw(e.getImageHandler().getImage(textureName), move.getX(), move.getY());
-//		}else
 			b.draw(e.getImageHandler().getImage("tile_"+id), move.getX(), move.getY());
 	}
 
